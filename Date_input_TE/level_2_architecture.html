@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 2 — Pipeline Architecture · ACTRIS Cluj Aerosol Early-Warning System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-page: #FAFAF7;
+  --bg-grid: rgba(15, 23, 42, 0.025);
+  --surface: #FFFFFF;
+  --border: #E5E7EB;
+  --border-strong: #CBD5E1;
+
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --text-quaternary: #CBD5E1;
+
+  --teal-50: #F0FDFA;
+  --teal-100: #CCFBF1;
+  --teal-200: #99F6E4;
+  --teal-600: #0D9488;
+  --teal-700: #0F766E;
+  --teal-800: #115E59;
+
+  --violet-50: #F5F3FF;
+  --violet-100: #EDE9FE;
+  --violet-200: #DDD6FE;
+  --violet-600: #7C3AED;
+  --violet-700: #6D28D9;
+  --violet-800: #5B21B6;
+
+  --amber-50: #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-200: #FDE68A;
+  --amber-600: #D97706;
+  --amber-700: #B45309;
+  --amber-800: #92400E;
+
+  --green-50: #ECFDF5;
+  --green-200: #A7F3D0;
+  --green-600: #059669;
+  --green-700: #047857;
+
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-accent: 0 1px 3px rgba(124, 58, 237, 0.10), 0 1px 2px rgba(124, 58, 237, 0.06);
+}
+
+html, body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
+  color: var(--text-primary);
+  background: var(--bg-page);
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 36px 36px;
+  background-position: -1px -1px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 64px 56px 96px;
+}
+
+.header {
+  margin-bottom: 72px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--teal-600), var(--violet-600));
+  position: relative;
+}
+
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 4px;
+  background: var(--bg-page);
+}
+
+.brand-mark::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--teal-600), var(--violet-600));
+  z-index: 1;
+}
+
+.brand-name { color: var(--text-primary); font-weight: 600; }
+.brand-divider { color: var(--text-quaternary); font-weight: 400; }
+.brand-context { color: var(--text-secondary); }
+
+.header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 56px;
+  flex-wrap: wrap;
+}
+
+.header-text { flex: 1; min-width: 480px; }
+
+.tier-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.tier-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--violet-600);
+}
+
+.title {
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  max-width: 760px;
+  line-height: 1.6;
+}
+
+.stats {
+  display: flex;
+  gap: 40px;
+  padding: 20px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-xs);
+}
+
+.stat-block { display: flex; flex-direction: column; gap: 4px; }
+
+.stat-value {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.architecture { display: flex; flex-direction: column; }
+.layer { position: relative; }
+
+.layer-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.layer-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  padding: 4px 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.layer-input .layer-id { color: var(--teal-800); background: var(--teal-50); border-color: var(--teal-200); }
+.layer-process .layer-id { color: var(--violet-800); background: var(--violet-50); border-color: var(--violet-200); }
+.layer-output .layer-id { color: var(--amber-800); background: var(--amber-50); border-color: var(--amber-200); }
+
+.layer-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.005em;
+}
+
+.layer-detail {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  margin-left: 4px;
+}
+
+.layer-detail::before {
+  content: '·';
+  margin-right: 10px;
+  color: var(--text-quaternary);
+}
+
+.subsection-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.subsection-label:first-child { margin-top: 0; }
+
+.subsection-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.cards { display: grid; gap: 16px; }
+.cards-5 { grid-template-columns: repeat(5, 1fr); }
+
+.cards-5-aux {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.cards-5-aux > .card:nth-child(1) { grid-column: 1; }
+.cards-5-aux > .card:nth-child(2) { grid-column: 2; }
+.cards-5-aux > .card:nth-child(3) { grid-column: 4; }
+.cards-5-aux > .card:nth-child(4) { grid-column: 5; }
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon svg { width: 17px; height: 17px; stroke-width: 1.75; }
+
+.layer-input .card-icon { background: var(--teal-50); color: var(--teal-700); }
+.layer-process .card-icon { background: var(--violet-50); color: var(--violet-700); }
+.layer-output .card-icon { background: var(--amber-50); color: var(--amber-700); }
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+}
+
+.card-subtitle {
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 3px 8px;
+  border-radius: 5px;
+  text-transform: lowercase;
+}
+
+.badge-nrt {
+  background: var(--green-50);
+  color: var(--green-700);
+  border: 1px solid var(--green-200);
+}
+
+.badge-neutral {
+  background: #F1F5F9;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.badge-q {
+  background: var(--amber-50);
+  color: var(--amber-800);
+  border: 1px solid var(--amber-200);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.badge-algo {
+  background: var(--violet-100);
+  color: var(--violet-800);
+  border: 1px solid var(--violet-200);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+/* Accent treatment for GRASP card */
+.card-accent {
+  border-color: var(--violet-200);
+  background: linear-gradient(180deg, var(--violet-50) 0%, var(--surface) 36%);
+}
+
+.card-accent:hover { border-color: var(--violet-600); }
+
+.connector { position: relative; height: 64px; margin: 6px 0; pointer-events: none; }
+.connector svg { width: 100%; height: 100%; display: block; }
+
+.layer-output .cards {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow 0.15s, border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.q-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.q-card-head { display: flex; align-items: center; gap: 12px; }
+
+.q-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amber-800);
+  background: var(--amber-50);
+  border: 1px solid var(--amber-200);
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+.q-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.q-answer {
+  font-size: 14.5px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.q-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.q-source-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.q-source-value {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.footer {
+  margin-top: 72px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-text {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.01em;
+}
+
+.legend { display: flex; align-items: center; gap: 24px; }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.legend-swatch { width: 11px; height: 11px; border-radius: 3px; }
+.legend-input { background: var(--teal-600); }
+.legend-process { background: var(--violet-600); }
+.legend-output { background: var(--amber-600); }
+
+@media (max-width: 1180px) {
+  .cards-5,
+  .cards-5-aux { grid-template-columns: repeat(3, 1fr); }
+  .cards-5-aux > .card:nth-child(1),
+  .cards-5-aux > .card:nth-child(2),
+  .cards-5-aux > .card:nth-child(3),
+  .cards-5-aux > .card:nth-child(4) { grid-column: auto; }
+  .layer-output .cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 720px) {
+  .container { padding: 36px 24px 56px; }
+  .cards-5,
+  .cards-5-aux { grid-template-columns: repeat(2, 1fr); }
+  .layer-output .cards { grid-template-columns: 1fr; }
+  .title { font-size: 30px; }
+  .header-row { flex-direction: column; align-items: flex-start; }
+  .stats { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="header">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">ACTRIS Cluj</span>
+      <span class="brand-divider">/</span>
+      <span class="brand-context">Aerosol early-warning system</span>
+    </div>
+    <div class="header-row">
+      <div class="header-text">
+        <span class="tier-label"><span class="tier-dot"></span>Tier 2 · realistic operational</span>
+        <h1 class="title">Pipeline architecture</h1>
+        <p class="subtitle">Realistic operational tier. Nine data sources plus the GRASP retrieval algorithm and FLEXPART dispersion modelling deliver quantitative, source-attributed answers to all six questions for Cluj-Napoca authorities.</p>
+      </div>
+      <div class="stats">
+        <div class="stat-block">
+          <span class="stat-value">9</span>
+          <span class="stat-label">Sources</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Processes</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-value">6</span>
+          <span class="stat-label">Answers</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="architecture">
+
+    <!-- ============ L1 Input Layer ============ -->
+    <section class="layer layer-input">
+      <div class="layer-header">
+        <span class="layer-id">L1</span>
+        <span class="layer-name">Input observations &amp; drivers</span>
+        <span class="layer-detail">Ground sensors, satellites, meteorology, emissions</span>
+      </div>
+
+      <div class="subsection-label">
+        <span>Observations</span>
+        <span class="subsection-line"></span>
+      </div>
+
+      <div class="cards cards-5">
+
+        <!-- RNMCA -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.93 19.07A10 10 0 0 1 4.93 4.93"/>
+                <path d="M7.76 16.24a6 6 0 0 1 0-8.49"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                <path d="M16.24 7.76a6 6 0 0 1 0 8.49"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <div class="card-title">RNMCA</div>
+          </div>
+          <div class="card-subtitle">Ground-station PM and gas concentrations</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>nrt 1 h</span>
+            <span class="badge badge-neutral">anmap</span>
+          </div>
+        </div>
+
+        <!-- AERONET -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2"/>
+                <path d="M12 20v2"/>
+                <path d="m4.93 4.93 1.41 1.41"/>
+                <path d="m17.66 17.66 1.41 1.41"/>
+                <path d="M2 12h2"/>
+                <path d="M20 12h2"/>
+                <path d="m6.34 17.66-1.41 1.41"/>
+                <path d="m19.07 4.93-1.41 1.41"/>
+              </svg>
+            </div>
+            <div class="card-title">AERONET</div>
+          </div>
+          <div class="card-subtitle">Sun-photometer AOD + sky radiance · inversion typing</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>daylight</span>
+            <span class="badge badge-neutral">cluj_ubb</span>
+          </div>
+        </div>
+
+        <!-- Ceilometer -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v8"/>
+                <path d="M12 2a4 4 0 0 0-4 4"/>
+                <path d="M12 2a4 4 0 0 1 4 4"/>
+                <path d="M6 10h12l-2 12H8L6 10z"/>
+                <path d="M10 14v4"/>
+                <path d="M14 14v4"/>
+              </svg>
+            </div>
+            <div class="card-title">Ceilometer</div>
+          </div>
+          <div class="card-subtitle">Lufft CHM 15k · continuous vertical profile</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>24/7</span>
+            <span class="badge badge-neutral">cloudnet</span>
+          </div>
+        </div>
+
+        <!-- Satellite AOD -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 7 9 3 5 7l4 4"/>
+                <path d="m17 11 4 4-4 4-4-4"/>
+                <path d="m8 12 4 4"/>
+                <path d="m16 8 3-3"/>
+                <path d="M9 21a6 6 0 0 0-6-6"/>
+              </svg>
+            </div>
+            <div class="card-title">Satellite AOD</div>
+          </div>
+          <div class="card-subtitle">MODIS Terra/Aqua + VIIRS SNPP/NOAA-20/-21</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>nrt 3 h</span>
+            <span class="badge badge-neutral">nasa lance</span>
+          </div>
+        </div>
+
+        <!-- CAMS -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+              </svg>
+            </div>
+            <div class="card-title">CAMS forecast</div>
+          </div>
+          <div class="card-subtitle">European ENSEMBLE at 10 km · species, PBLH, pollen</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>nrt</span>
+            <span class="badge badge-neutral">ecmwf</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="subsection-label">
+        <span>Drivers &amp; inventories</span>
+        <span class="subsection-line"></span>
+      </div>
+
+      <div class="cards-5-aux">
+
+        <!-- GFS -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+                <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+                <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+              </svg>
+            </div>
+            <div class="card-title">GFS meteorology</div>
+          </div>
+          <div class="card-subtitle">NOAA 0.25° ARL · drives HYSPLIT</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>nrt 3 h</span>
+            <span class="badge badge-neutral">aws s3</span>
+          </div>
+        </div>
+
+        <!-- ERA5 -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h5"/>
+                <path d="M17 12h5"/>
+                <path d="M12 2v5"/>
+                <path d="M12 17v5"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M5.6 5.6 8 8"/>
+                <path d="M16 16l2.4 2.4"/>
+                <path d="M5.6 18.4 8 16"/>
+                <path d="M16 8l2.4-2.4"/>
+              </svg>
+            </div>
+            <div class="card-title">ERA5 meteorology</div>
+          </div>
+          <div class="card-subtitle">ECMWF 137 levels · drives FLEXPART</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>era5t ~5d</span>
+            <span class="badge badge-neutral">ecmwf cds</span>
+          </div>
+        </div>
+
+        <!-- EDGAR -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 7H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <path d="M12 11v6"/>
+                <path d="M9 14h6"/>
+              </svg>
+            </div>
+            <div class="card-title">EDGAR v8.1</div>
+          </div>
+          <div class="card-subtitle">JRC anthropogenic emissions · 0.1° gridded · IPCC sectors</div>
+          <div class="card-meta">
+            <span class="badge badge-neutral">annual</span>
+            <span class="badge badge-neutral">eu jrc</span>
+          </div>
+        </div>
+
+        <!-- GFED5 -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+              </svg>
+            </div>
+            <div class="card-title">GFED5</div>
+          </div>
+          <div class="card-subtitle">Biomass-burning emissions · fire-type partitioned</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>daily beta</span>
+            <span class="badge badge-neutral">wageningen</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ Connector L1 → L2 (fan-in convergence) ============ -->
+    <div class="connector" aria-hidden="true" style="height: 80px;">
+      <svg viewBox="0 0 1368 80" preserveAspectRatio="none">
+        <defs>
+          <marker id="arrowhead-1" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M1 1 L7 5 L1 9" fill="none" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <!-- 5 paths from row-1 observations down -->
+        <path d="M 136.8 0 Q 136.8 36 684 40" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 410.4 0 Q 410.4 36 684 40" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 684 0 L 684 40" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 957.6 0 Q 957.6 36 684 40" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 1231.2 0 Q 1231.2 36 684 40" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <!-- Convergence dot + downward arrow to L2 -->
+        <circle cx="684" cy="40" r="4" fill="#94A3B8"/>
+        <line x1="684" y1="40" x2="684" y2="72" stroke="#94A3B8" stroke-width="1.7" marker-end="url(#arrowhead-1)"/>
+      </svg>
+    </div>
+
+    <!-- ============ L2 Processing Layer ============ -->
+    <section class="layer layer-process">
+      <div class="layer-header">
+        <span class="layer-id">L2</span>
+        <span class="layer-name">Processing</span>
+        <span class="layer-detail">Retrieval, fusion, source attribution, plume forecasting</span>
+      </div>
+
+      <div class="cards cards-5">
+
+        <!-- Surface fusion -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 22 8.5 12 15 2 8.5 12 2"/>
+                <polyline points="2 15.5 12 22 22 15.5"/>
+                <polyline points="2 11.5 12 18 22 11.5"/>
+              </svg>
+            </div>
+            <div class="card-title">Surface fusion</div>
+          </div>
+          <div class="card-subtitle">RNMCA + CAMS + AOD constraint · 1 km grid</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q5 Q6</span>
+          </div>
+        </div>
+
+        <!-- Forecast -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                <polyline points="16 7 22 7 22 13"/>
+              </svg>
+            </div>
+            <div class="card-title">Forecast trend</div>
+          </div>
+          <div class="card-subtitle">CAMS 72 h + threshold logic · regional evolution</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q2</span>
+          </div>
+        </div>
+
+        <!-- GRASP retrieval (accent card) -->
+        <div class="card card-accent">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 3v18"/>
+                <path d="M3 12h18"/>
+                <path d="M5.5 5.5l13 13"/>
+                <path d="M18.5 5.5l-13 13"/>
+              </svg>
+            </div>
+            <div class="card-title">GRASP retrieval</div>
+          </div>
+          <div class="card-subtitle">AERONET + ceilometer · per-layer microphysics &amp; type</div>
+          <div class="card-meta">
+            <span class="badge badge-algo">l2 algorithm</span>
+            <span class="badge badge-q">→ Q3 Q4</span>
+          </div>
+        </div>
+
+        <!-- Source attribution -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="19" r="3"/>
+                <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>
+                <circle cx="18" cy="5" r="3"/>
+              </svg>
+            </div>
+            <div class="card-title">Source attribution</div>
+          </div>
+          <div class="card-subtitle">HYSPLIT + FLEXPART backward × EDGAR/GFED5</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q1</span>
+          </div>
+        </div>
+
+        <!-- Plume forecast -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L4 22"/>
+                <path d="M12 2l8 20"/>
+                <path d="M8 14h8"/>
+                <path d="M6 18h12"/>
+              </svg>
+            </div>
+            <div class="card-title">Plume forecast</div>
+          </div>
+          <div class="card-subtitle">FLEXPART forward · local incidents (e.g. Pătărât)</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q2</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ Connector L2 → L3 (convergence) ============ -->
+    <div class="connector" aria-hidden="true" style="height: 84px;">
+      <svg viewBox="0 0 1368 84" preserveAspectRatio="none">
+        <defs>
+          <marker id="arrowhead-2" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M1 1 L7 5 L1 9" fill="none" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <path d="M 136.8 0 Q 136.8 38 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 410.4 0 Q 410.4 38 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 684 0 L 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 957.6 0 Q 957.6 38 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 1231.2 0 Q 1231.2 38 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <line x1="684" y1="42" x2="684" y2="75" stroke="#94A3B8" stroke-width="1.7" marker-end="url(#arrowhead-2)"/>
+        <circle cx="684" cy="42" r="4" fill="#94A3B8"/>
+      </svg>
+    </div>
+
+    <!-- ============ L3 Output Layer ============ -->
+    <section class="layer layer-output">
+      <div class="layer-header">
+        <span class="layer-id">L3</span>
+        <span class="layer-name">Operational output</span>
+        <span class="layer-detail">Interactive map · click anywhere in Cluj-Napoca · quantitative answers</span>
+      </div>
+
+      <div class="cards">
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q1</span>
+            <span class="q-title">Where from?</span>
+          </div>
+          <div class="q-answer">Quantitative attribution by region and sector — percentage from local sources, regional anthropogenic, biomass burning, dust.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">FLEXPART × EDGAR + GFED5</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q2</span>
+            <span class="q-title">How will it evolve?</span>
+          </div>
+          <div class="q-answer">Regional 72 h trend plus incident-specific plume forecast for local emergencies with hourly footprint.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">CAMS + FLEXPART forward</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q3</span>
+            <span class="q-title">What type?</span>
+          </div>
+          <div class="q-answer">Per-layer composition — fine/coarse mode, SSA, refractive index, type classification from research-grade inversion.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">GRASP + CAMS species</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q4</span>
+            <span class="q-title">Where vertically?</span>
+          </div>
+          <div class="q-answer">Full vertical concentration and type profile with aerosol-layer altitudes and lidar-ratio-based discrimination.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">GRASP + ceilometer</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q5</span>
+            <span class="q-title">Act or monitor?</span>
+          </div>
+          <div class="q-answer">Source-weighted, chemistry-aware action recommendation with incident-specific protocols and confidence.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">integrated decision logic</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q6</span>
+            <span class="q-title">Scale of danger?</span>
+          </div>
+          <div class="q-answer">EU AQI five-level with multi-source validation flag — high confidence when RNMCA, AERONET, CAMS agree.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">RNMCA + AERONET + CAMS</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-text">ACTRIS Cluj · Stage 1 architecture documentation · v1.0</div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch legend-input"></span>L1 inputs</div>
+      <div class="legend-item"><span class="legend-swatch legend-process"></span>L2 processing</div>
+      <div class="legend-item"><span class="legend-swatch legend-output"></span>L3 output</div>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

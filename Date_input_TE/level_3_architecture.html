@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 3 — Pipeline Architecture · ACTRIS Cluj Aerosol Early-Warning System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-page: #FAFAF7;
+  --bg-grid: rgba(15, 23, 42, 0.025);
+  --surface: #FFFFFF;
+  --border: #E5E7EB;
+  --border-strong: #CBD5E1;
+
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --text-quaternary: #CBD5E1;
+
+  --teal-50: #F0FDFA;
+  --teal-100: #CCFBF1;
+  --teal-200: #99F6E4;
+  --teal-600: #0D9488;
+  --teal-700: #0F766E;
+  --teal-800: #115E59;
+
+  --violet-50: #F5F3FF;
+  --violet-100: #EDE9FE;
+  --violet-200: #DDD6FE;
+  --violet-600: #7C3AED;
+  --violet-700: #6D28D9;
+  --violet-800: #5B21B6;
+
+  --amber-50: #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-200: #FDE68A;
+  --amber-600: #D97706;
+  --amber-700: #B45309;
+  --amber-800: #92400E;
+
+  --green-50: #ECFDF5;
+  --green-200: #A7F3D0;
+  --green-600: #059669;
+  --green-700: #047857;
+
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+html, body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
+  color: var(--text-primary);
+  background: var(--bg-page);
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 36px 36px;
+  background-position: -1px -1px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 64px 56px 96px;
+}
+
+.header {
+  margin-bottom: 72px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--teal-600), var(--violet-600));
+  position: relative;
+}
+
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 4px;
+  background: var(--bg-page);
+}
+
+.brand-mark::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--teal-600), var(--violet-600));
+  z-index: 1;
+}
+
+.brand-name { color: var(--text-primary); font-weight: 600; }
+.brand-divider { color: var(--text-quaternary); font-weight: 400; }
+.brand-context { color: var(--text-secondary); }
+
+.header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 56px;
+  flex-wrap: wrap;
+}
+
+.header-text { flex: 1; min-width: 480px; }
+
+.tier-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.tier-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green-600);
+}
+
+.title {
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.stats {
+  display: flex;
+  gap: 40px;
+  padding: 20px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-xs);
+}
+
+.stat-block { display: flex; flex-direction: column; gap: 4px; }
+
+.stat-value {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.architecture { display: flex; flex-direction: column; }
+.layer { position: relative; }
+
+.layer-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.layer-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  padding: 4px 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.layer-input .layer-id { color: var(--teal-800); background: var(--teal-50); border-color: var(--teal-200); }
+.layer-process .layer-id { color: var(--violet-800); background: var(--violet-50); border-color: var(--violet-200); }
+.layer-output .layer-id { color: var(--amber-800); background: var(--amber-50); border-color: var(--amber-200); }
+
+.layer-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.005em;
+}
+
+.layer-detail {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  margin-left: 4px;
+}
+
+.layer-detail::before {
+  content: '·';
+  margin-right: 10px;
+  color: var(--text-quaternary);
+}
+
+.cards { display: grid; gap: 16px; }
+.cards-5 { grid-template-columns: repeat(5, 1fr); }
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon svg { width: 17px; height: 17px; stroke-width: 1.75; }
+
+.layer-input .card-icon { background: var(--teal-50); color: var(--teal-700); }
+.layer-process .card-icon { background: var(--violet-50); color: var(--violet-700); }
+.layer-output .card-icon { background: var(--amber-50); color: var(--amber-700); }
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+}
+
+.card-subtitle {
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 3px 8px;
+  border-radius: 5px;
+  text-transform: lowercase;
+}
+
+.badge-nrt {
+  background: var(--green-50);
+  color: var(--green-700);
+  border: 1px solid var(--green-200);
+}
+
+.badge-neutral {
+  background: #F1F5F9;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.badge-q {
+  background: var(--amber-50);
+  color: var(--amber-800);
+  border: 1px solid var(--amber-200);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.connector { position: relative; height: 64px; margin: 6px 0; pointer-events: none; }
+.connector svg { width: 100%; height: 100%; display: block; }
+
+.layer-output .cards {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow 0.15s, border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.q-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.q-card-head { display: flex; align-items: center; gap: 12px; }
+
+.q-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amber-800);
+  background: var(--amber-50);
+  border: 1px solid var(--amber-200);
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+.q-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.q-answer {
+  font-size: 14.5px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.q-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.q-source-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.q-source-value {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.footer {
+  margin-top: 72px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-text {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.01em;
+}
+
+.legend { display: flex; align-items: center; gap: 24px; }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.legend-swatch { width: 11px; height: 11px; border-radius: 3px; }
+.legend-input { background: var(--teal-600); }
+.legend-process { background: var(--violet-600); }
+.legend-output { background: var(--amber-600); }
+
+@media (max-width: 1180px) {
+  .cards-5 { grid-template-columns: repeat(3, 1fr); }
+  .layer-output .cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 720px) {
+  .container { padding: 36px 24px 56px; }
+  .cards-5 { grid-template-columns: repeat(2, 1fr); }
+  .layer-output .cards { grid-template-columns: 1fr; }
+  .title { font-size: 30px; }
+  .header-row { flex-direction: column; align-items: flex-start; }
+  .stats { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="header">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">ACTRIS Cluj</span>
+      <span class="brand-divider">/</span>
+      <span class="brand-context">Aerosol early-warning system</span>
+    </div>
+    <div class="header-row">
+      <div class="header-text">
+        <span class="tier-label"><span class="tier-dot"></span>Tier 3 · baseline operational</span>
+        <h1 class="title">Pipeline architecture</h1>
+        <p class="subtitle">Minimum-footprint operational tier. Five data streams feed five processing operations to answer six questions for emergency authorities across Cluj-Napoca.</p>
+      </div>
+      <div class="stats">
+        <div class="stat-block">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Inputs</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Processes</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-value">6</span>
+          <span class="stat-label">Answers</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="architecture">
+
+    <section class="layer layer-input">
+      <div class="layer-header">
+        <span class="layer-id">L1</span>
+        <span class="layer-name">Input observations</span>
+        <span class="layer-detail">Operational data streams · ingested continuously</span>
+      </div>
+
+      <div class="cards cards-5">
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.93 19.07A10 10 0 0 1 4.93 4.93"/>
+                <path d="M7.76 16.24a6 6 0 0 1 0-8.49"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                <path d="M16.24 7.76a6 6 0 0 1 0 8.49"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <div class="card-title">RNMCA</div>
+          </div>
+          <div class="card-subtitle">Ground-station PM and gas concentrations</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>nrt 1 h</span>
+            <span class="badge badge-neutral">anmap</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+              </svg>
+            </div>
+            <div class="card-title">CAMS forecast</div>
+          </div>
+          <div class="card-subtitle">European ENSEMBLE at 10 km · species, PBLH, pollen</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>nrt</span>
+            <span class="badge badge-neutral">ecmwf</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 7 9 3 5 7l4 4"/>
+                <path d="m17 11 4 4-4 4-4-4"/>
+                <path d="m8 12 4 4"/>
+                <path d="m16 8 3-3"/>
+                <path d="M9 21a6 6 0 0 0-6-6"/>
+              </svg>
+            </div>
+            <div class="card-title">Satellite AOD</div>
+          </div>
+          <div class="card-subtitle">MODIS Terra/Aqua + VIIRS SNPP/NOAA-20/-21</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>nrt 3 h</span>
+            <span class="badge badge-neutral">nasa lance</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v8"/>
+                <path d="M12 2a4 4 0 0 0-4 4"/>
+                <path d="M12 2a4 4 0 0 1 4 4"/>
+                <path d="M6 10h12l-2 12H8L6 10z"/>
+                <path d="M10 14v4"/>
+                <path d="M14 14v4"/>
+              </svg>
+            </div>
+            <div class="card-title">Ceilometer</div>
+          </div>
+          <div class="card-subtitle">Lufft CHM 15k · continuous vertical profile</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>24/7</span>
+            <span class="badge badge-neutral">cloudnet</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+                <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+                <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+              </svg>
+            </div>
+            <div class="card-title">GFS meteorology</div>
+          </div>
+          <div class="card-subtitle">NOAA 0.25° ARL · drives HYSPLIT</div>
+          <div class="card-meta">
+            <span class="badge badge-nrt"><span class="badge-dot"></span>nrt 3 h</span>
+            <span class="badge badge-neutral">aws s3</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="connector" aria-hidden="true">
+      <svg viewBox="0 0 1368 64" preserveAspectRatio="none">
+        <defs>
+          <marker id="arrowhead-1" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M1 1 L7 5 L1 9" fill="none" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <line x1="136.8" y1="0" x2="136.8" y2="55" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#arrowhead-1)"/>
+        <line x1="410.4" y1="0" x2="410.4" y2="55" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#arrowhead-1)"/>
+        <line x1="684" y1="0" x2="684" y2="55" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#arrowhead-1)"/>
+        <line x1="957.6" y1="0" x2="957.6" y2="55" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#arrowhead-1)"/>
+        <line x1="1231.2" y1="0" x2="1231.2" y2="55" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#arrowhead-1)"/>
+      </svg>
+    </div>
+
+    <section class="layer layer-process">
+      <div class="layer-header">
+        <span class="layer-id">L2</span>
+        <span class="layer-name">Processing</span>
+        <span class="layer-detail">Spatial fusion, classification, trajectory analysis</span>
+      </div>
+
+      <div class="cards cards-5">
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 22 8.5 12 15 2 8.5 12 2"/>
+                <polyline points="2 15.5 12 22 22 15.5"/>
+                <polyline points="2 11.5 12 18 22 11.5"/>
+              </svg>
+            </div>
+            <div class="card-title">Surface mix</div>
+          </div>
+          <div class="card-subtitle">RNMCA + CAMS field on 1 km Cluj grid</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q5 Q6</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                <polyline points="16 7 22 7 22 13"/>
+              </svg>
+            </div>
+            <div class="card-title">Forecast trend</div>
+          </div>
+          <div class="card-subtitle">CAMS 72 h trajectory + threshold logic</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q2</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                <line x1="7" y1="7" x2="7.01" y2="7"/>
+              </svg>
+            </div>
+            <div class="card-title">Type ID</div>
+          </div>
+          <div class="card-subtitle">CAMS species + pollen classification</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q3</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="6" y1="3" x2="6" y2="21"/>
+                <line x1="12" y1="3" x2="12" y2="13"/>
+                <line x1="18" y1="3" x2="18" y2="17"/>
+                <line x1="3" y1="21" x2="21" y2="21"/>
+              </svg>
+            </div>
+            <div class="card-title">Vertical scan</div>
+          </div>
+          <div class="card-subtitle">Ceilometer + AOD-to-surface PM ratio</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q4</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="19" r="3"/>
+                <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>
+                <circle cx="18" cy="5" r="3"/>
+              </svg>
+            </div>
+            <div class="card-title">Back-trajectory</div>
+          </div>
+          <div class="card-subtitle">HYSPLIT 5-day at 3 heights · region tag</div>
+          <div class="card-meta">
+            <span class="badge badge-q">→ Q1</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="connector" aria-hidden="true" style="height: 84px;">
+      <svg viewBox="0 0 1368 84" preserveAspectRatio="none">
+        <defs>
+          <marker id="arrowhead-2" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M1 1 L7 5 L1 9" fill="none" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <path d="M 136.8 0 Q 136.8 38 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 410.4 0 Q 410.4 38 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 684 0 L 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 957.6 0 Q 957.6 38 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <path d="M 1231.2 0 Q 1231.2 38 684 42" fill="none" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="3 4"/>
+        <line x1="684" y1="42" x2="684" y2="75" stroke="#94A3B8" stroke-width="1.7" marker-end="url(#arrowhead-2)"/>
+        <circle cx="684" cy="42" r="4" fill="#94A3B8"/>
+      </svg>
+    </div>
+
+    <section class="layer layer-output">
+      <div class="layer-header">
+        <span class="layer-id">L3</span>
+        <span class="layer-name">Operational output</span>
+        <span class="layer-detail">Interactive map · click anywhere in Cluj-Napoca</span>
+      </div>
+
+      <div class="cards">
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q1</span>
+            <span class="q-title">Where from?</span>
+          </div>
+          <div class="q-answer">Source region in eight broad classes — local, east, south, west, north, Saharan, polar, mixed.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">HYSPLIT trajectory</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q2</span>
+            <span class="q-title">How will it evolve?</span>
+          </div>
+          <div class="q-answer">Concentration trajectory at +24, +48, +72 h with trend arrow and projected peak time.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">CAMS European ENSEMBLE</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q3</span>
+            <span class="q-title">What type?</span>
+          </div>
+          <div class="q-answer">Dust, biomass-burning smoke, urban/industrial, secondary anthropogenic, pollen, or mixed.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">CAMS species + pollen</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q4</span>
+            <span class="q-title">Where vertically?</span>
+          </div>
+          <div class="q-answer">Ground-level, boundary-layer-mixed, or elevated-only — three-level descriptor.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">Ceilometer + AOD/PM ratio</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q5</span>
+            <span class="q-title">Act or monitor?</span>
+          </div>
+          <div class="q-answer">No action, monitor, prepare advisory, public advisory, or emergency action — source-aware escalation.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">integrated logic</span>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-card-head">
+            <span class="q-number">Q6</span>
+            <span class="q-title">Scale of danger?</span>
+          </div>
+          <div class="q-answer">EU AQI five-level categorisation — good, fair, moderate, poor, very poor.</div>
+          <div class="q-source">
+            <span class="q-source-label">via</span>
+            <span class="q-source-value">RNMCA + CAMS fusion</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-text">ACTRIS Cluj · Stage 1 architecture documentation · v1.0</div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch legend-input"></span>L1 inputs</div>
+      <div class="legend-item"><span class="legend-swatch legend-process"></span>L2 processing</div>
+      <div class="legend-item"><span class="legend-swatch legend-output"></span>L3 output</div>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>
