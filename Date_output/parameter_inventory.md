@@ -1054,34 +1054,3 @@ Rows preserve repeated occurrences in the Word document. Definitions and shared 
 | Cadence | Interval between observations/results | Temporal-selection metadata |
 | Platform/version/baseline | Carrier and processing edition | Reproducibility metadata |
 
-## Gaps and contradictions
-
-| Issue | Consequence |
-|---|---|
-| Sentinel-4 CO in Word table contradicts no-SWIR/no-CO statement | Preserve occurrence but do not construct a CO request |
-| Sentinel-4 CO2 proxy undefined | No definition/method/API can be recovered |
-| Sentinel-4/5 collection IDs are placeholders | Planned quantities, not verified callable products |
-| EARLINET endpoint/auth uncertain | Inputs are documented patterns, not confirmed contract |
-| ATLID endpoints/IDs/fields need verification | Discovery templates only |
-| FCI true-colour example downloads HRFI without blue/green bands | Use data containing all required bands, e.g. appropriate FDHSI |
-| CAMS PBLH appears without detailed selector | Retain quantity; API mapping unresolved |
-| ERA5T described as useful for future forecasts | ERA5T is delayed reanalysis; future forcing needs forecast product |
-| MERRA-2 PM10 formula absent; PM2.5 example qualified | Neither a direct downloaded PM variable nor universally validated derivation |
-| MERRA-2 latency comparisons inconsistent | Verify provider product-specific delays |
-| MERRA-2 stream chronology/collection assignments unvalidated | Discover actual metadata/files instead of hard-coding claims |
-| EDGAR filename codes lack dictionary | Obtain release-specific definitions for sector comparisons |
-| EDGAR/EMEP nominal 0.1-degree match | Verify grid origin/alignment/units/masks before direct subtraction |
-| CEIP URLs include ... | Not executable |
-| GFED example 2024 ecosystem file outside static release ending 2022 | Select correct extension/tier; existence not established |
-| GFED trajectory percentage normalizes encountered emissions | Not automatically fraction of observed Cluj PM |
-| Word and detailed product levels/labels differ | Preserve provider-specific definitions; generic levels not interchangeable |
-| Architecture lists five EU AQI classes | Reconcile intended standard/full class set |
-| etc./all species/approximately 40 or 70 species | Unnamed provider fields cannot be enumerated from repository |
-
-## Reproducibility and interpretation
-
-- Source links in Excel point to the immutable commit above. File IDs map every row to the dataset or architecture source.
-- Request profiles carry shared location/date/authentication inputs; per-metric selectors and local processing requirements appear in individual rows.
-- Native names are only asserted where the repository supplies them. Approximate names, illustrative calls and future products remain marked.
-- Chemical emissions, surface concentrations, column amounts, optical depths, image composites and health indices represent different quantities and must not be interchanged.
-- Missing API details, model settings, classification thresholds, exact units and unnamed species require authoritative provider schemas or further project specifications.
